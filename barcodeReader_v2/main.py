@@ -62,7 +62,7 @@ class GUIMenuArea:
         self.button_print_receipt = tk.Button(self.frame, text="Skriv ut kvitto", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=2, sticky="WE", padx=30, pady=10)
         self.button_print_receipt.pack(side="top", expand="yes", padx=10, pady=10)
         self.button_print_receipt.configure(command=self.print_receipt, borderwidth=2, relief="raised", bg="snow3")
-        self.button_clear_all = tk.Button(self.frame, text="Rensa artiklar", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=3, sticky="WE", padx=30, pady=10)
+        self.button_clear_all = tk.Button(self.frame, text="Rensa rutan med artiklar", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=3, sticky="WE", padx=30, pady=10)
         self.button_clear_all.pack(side="top", expand="yes", padx=10, pady=10)
         self.button_clear_all.configure(command=self.remove_all_articles, borderwidth=2, relief="raised", bg="snow3")
         self.button_add_to_database = tk.Button(self.frame, text="Lägg till artikel i databas", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=4, sticky="WE", padx=30, pady=10)
@@ -334,6 +334,12 @@ class ShoppingBasket:
         return self.total_cost
 
     def print_function(self, name_customer):
+        for i, desc in enumerate(self.description):
+            if desc == "Reparation/Felsökning/Provkörning":
+                self.description.append(self.description.pop(i))
+                self.article_number.append(self.article_number.pop(i))
+                self.price.append(self.price.pop(i))
+                self.number_of_items.append(self.number_of_items.pop(i))
         self.update_recipt(name_customer)
         os.startfile('Kvitto.pdf', 'print')
 
@@ -380,13 +386,13 @@ class ShoppingBasket:
             data[i + 1][0] = self.article_number[i]
             data[i + 1][1] = self.description[i]
             data[i + 1][2] = int(self.number_of_items[i])
-            data[i + 1][3] = "{} kr".format(float(self.price[i]))
+            data[i + 1][3] = "{:.2f} kr".format(float(self.price[i]))
 
         if len(name_customer) > 0:
-            c.drawString(widthA4 * 6 / 10, heightA4 * 8.1 / 10, 'Kund:')
-            c.drawString(widthA4 * 6.55 / 10, heightA4 * 8.1 / 10, '{}'.format(name_customer))
-        data[-3][3] = "{} kr".format(self.total_cost/1.25)
-        data[-2][3] = "{} kr".format(self.total_cost)
+            c.drawString(widthA4 * 4.7 / 10, heightA4 * 8.1 / 10, 'Kund:')
+            c.drawString(widthA4 * 5.25 / 10, heightA4 * 8.1 / 10, '{}'.format(name_customer))
+        data[-2][3] = "{:.2f} kr".format(self.total_cost)
+        data[-3][3] = "{:.2f} kr".format(self.total_cost / 1.25)
         data[-1][3] = time.strftime("%Y-%m-%d")
 
         f = Table(data, colWidths=(3.5 * cm, 6.2 * cm, 2 * cm, 3 * cm),
@@ -407,8 +413,15 @@ class ShoppingBasket:
                          ('ALIGN', (2, 0), (2, -1), 'CENTER'),
                          # Pris kolumnen
                          ('ALIGN', (3, 0), (3, -1), 'CENTER'),
-
                          ('TOPPADDING', (0, -1), (-1, -1), 15),
+                         #Botten rutan
+                         #('TOPPADDING', (0, -2), (-1, -2), 2),
+                         #('BOTTOMPADDING', (0, -2), (-1, -2), 2),
+                         ('ALIGN', (-2, -3), (-2, -2), 'RIGHT'),
+                         ('ALIGN', (-1, -3), (-1, -2), 'LEFT'),
+                         ('VALIGN', (-1, -2), (-1, -2), 'TOP'),
+                         ('FONTSIZE', (-2, -3), (-1, -3), 8),
+                         ('FONTSIZE', (-2, -2), (-1, -2), 14),
                          ])
         width = 6 * cm
         height = 4 * cm
@@ -457,13 +470,24 @@ def center(win):
     win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
 
-def timer_refresh(tim):
-    tim.cancel()
-    tim = Timer(240.0, article_frame.reset)
-    tim.start()
+def user_is_inactive():
+    menu_frame.remove_all_articles()
+    print("Reseted all from timer")
+
+
+def reset_timer(event=None):
+    global timer
+    # cancel the previous event
+    if timer is not None:
+        root.after_cancel(timer)
+    print("INside reset_timer")
+    # create new timer
+    timer = root.after(300000, user_is_inactive)
+    print(timer)
 
 
 if __name__ == "__main__":
+    timer = None
     # Lets just make a global shopping basket
     basket = ShoppingBasket()
     # Configure GUI and start its main loop
@@ -474,7 +498,6 @@ if __name__ == "__main__":
     search_frame = GUISearchArea(root)
     menu_frame = GUIMenuArea(root)
     article_frame = GUIArticleArea(root)
-    timer = Timer(240.0, article_frame.reset)
     cost_frame = GUICostArea(root)
     root.grid_rowconfigure(0, weight=1)
     root.grid_rowconfigure(1, weight=1)
@@ -484,6 +507,8 @@ if __name__ == "__main__":
     menu_frame.frame.grid(row=1, column=0, sticky="NESW")
     article_frame.frame.grid(row=0, column=1, rowspan=2, sticky="NESW")
     cost_frame.frame.grid(row=3, column=1, sticky="NESW")
+    root.bind_all('<Any-KeyPress>', reset_timer)
+    root.bind_all('<Any-ButtonPress>', reset_timer)
     root.mainloop()
 
 
