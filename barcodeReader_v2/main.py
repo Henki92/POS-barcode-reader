@@ -11,6 +11,7 @@ from reportlab.lib.units import cm
 import time
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
+import psutil
 
 
 class GUISearchArea:
@@ -210,10 +211,12 @@ class GUIArticleArea:
         self.small_overhead_frame.grid(row=0, column=0)
         tk.Label(self.small_overhead_frame, bg="gray", text="Artikelnummer", width=13).grid(column=0, row=1, padx=5)
         tk.Label(self.small_overhead_frame, bg="gray", text="Beskrivning", width=28).grid(column=1, row=1, padx=5)
-        tk.Label(self.small_overhead_frame, bg="gray", text="Pris inkl.", width=8).grid(column=2, row=0, padx=5)
+        tk.Label(self.small_overhead_frame, bg="gray", text="Pris exkl.", width=8).grid(column=2, row=0, padx=5)
         tk.Label(self.small_overhead_frame, bg="gray", text="moms", width=8).grid(column=2, row=1, padx=5)
-        tk.Label(self.small_overhead_frame, bg="gray", text="Antal", width=5).grid(column=3, row=1, padx=5)
-        tk.Label(self.small_overhead_frame, bg="gray", text="", width=12).grid(column=4, row=0)
+        tk.Label(self.small_overhead_frame, bg="gray", text="Pris inkl.", width=8).grid(column=3, row=0, padx=5)
+        tk.Label(self.small_overhead_frame, bg="gray", text="moms", width=8).grid(column=3, row=1, padx=5)
+        tk.Label(self.small_overhead_frame, bg="gray", text="Antal", width=5).grid(column=4, row=1, padx=5)
+        tk.Label(self.small_overhead_frame, bg="gray", text="", width=12).grid(column=5, row=0)
         self.article_frame = tk.Frame(self.frame)
         self.article_frame.grid(row=1, column=0)
         self.article_rows = 0
@@ -225,10 +228,12 @@ class GUIArticleArea:
         self.small_overhead_frame.grid(row=0, column=0)
         tk.Label(self.small_overhead_frame, bg="gray", text="Artikelnummer", width=13).grid(column=0, row=1, padx=5)
         tk.Label(self.small_overhead_frame, bg="gray", text="Beskrivning", width=28).grid(column=1, row=1, padx=5)
-        tk.Label(self.small_overhead_frame, bg="gray", text="Pris inkl.", width=8).grid(column=2, row=0, padx=5)
+        tk.Label(self.small_overhead_frame, bg="gray", text="Pris exkl.", width=8).grid(column=2, row=0, padx=5)
         tk.Label(self.small_overhead_frame, bg="gray", text="moms", width=8).grid(column=2, row=1, padx=5)
-        tk.Label(self.small_overhead_frame, bg="gray", text="Antal", width=5).grid(column=3, row=1, padx=5)
-        tk.Label(self.small_overhead_frame, bg="gray", text="", width=12).grid(column=4, row=0)
+        tk.Label(self.small_overhead_frame, bg="gray", text="Pris inkl.", width=8).grid(column=3, row=0, padx=5)
+        tk.Label(self.small_overhead_frame, bg="gray", text="moms", width=8).grid(column=3, row=1, padx=5)
+        tk.Label(self.small_overhead_frame, bg="gray", text="Antal", width=5).grid(column=4, row=1, padx=5)
+        tk.Label(self.small_overhead_frame, bg="gray", text="", width=12).grid(column=5, row=0)
         self.article_frame = tk.Frame(self.frame)
         self.article_frame.grid(row=1, column=0)
         self.article_rows = 0
@@ -245,10 +250,11 @@ class GUIArticleArea:
 
         tk.Label(temp_frame, text=article_info[0], width=13).grid(row=0, column=0, padx=5)
         tk.Label(temp_frame, text=article_info[1], width=28).grid(row=0, column=1, padx=5)
-        tk.Label(temp_frame, text=article_info[2], width=8).grid(row=0, column=2, padx=5)
+        tk.Label(temp_frame, text=str(float(article_info[2])/1.25), width=8).grid(row=0, column=2, padx=5)
+        tk.Label(temp_frame, text=article_info[2], width=8).grid(row=0, column=3, padx=5)
         num_box.configure(command=spin_box)
-        num_box.grid(row=0, column=3, padx=5)
-        tk.Button(temp_frame, text="Ta bort artikel", command=partial(self.remove_article, temp_frame)).grid(row=0, column=4, padx=5)
+        num_box.grid(row=0, column=4, padx=5)
+        tk.Button(temp_frame, text="Ta bort artikel", command=partial(self.remove_article, temp_frame)).grid(row=0, column=5, padx=5)
         temp_frame.grid(row=self.article_rows + 1, column=2)
         basket.append_item(article_info, temp_frame)
 
@@ -334,6 +340,7 @@ class ShoppingBasket:
         return self.total_cost
 
     def print_function(self, name_customer):
+        os.system("TASKKILL /F /IM AcroRD32.exe")
         for i, desc in enumerate(self.description):
             if desc == "Reparation/Felsökning/Provkörning":
                 self.description.append(self.description.pop(i))
@@ -341,11 +348,10 @@ class ShoppingBasket:
                 self.price.append(self.price.pop(i))
                 self.number_of_items.append(self.number_of_items.pop(i))
         self.update_recipt(name_customer)
-        os.startfile('Kvitto.pdf', 'print')
+        os.startfile('Kvitto.pdf')
 
     def update_recipt(self, name_customer):
         widthA4, heightA4 = A4
-
         c = canvas.Canvas("Kvitto.pdf", pagesize=A4)
 
         # Rubrik kvitto
@@ -419,9 +425,9 @@ class ShoppingBasket:
                          #('BOTTOMPADDING', (0, -2), (-1, -2), 2),
                          ('ALIGN', (-2, -3), (-2, -2), 'RIGHT'),
                          ('ALIGN', (-1, -3), (-1, -2), 'LEFT'),
-                         ('VALIGN', (-1, -2), (-1, -2), 'TOP'),
+                         ('VALIGN', (-1, -2), (-1, -2), 'BOTTOM'),
                          ('FONTSIZE', (-2, -3), (-1, -3), 8),
-                         ('FONTSIZE', (-2, -2), (-1, -2), 14),
+                         ('FONTSIZE', (-2, -2), (-1, -2), 12),
                          ])
         width = 6 * cm
         height = 4 * cm
@@ -480,7 +486,7 @@ def reset_timer(event=None):
     # cancel the previous event
     if timer is not None:
         root.after_cancel(timer)
-    print("INside reset_timer")
+    print("Inside reset_timer")
     # create new timer
     timer = root.after(300000, user_is_inactive)
     print(timer)
@@ -493,7 +499,7 @@ if __name__ == "__main__":
     # Configure GUI and start its main loop
     root = tk.Tk()
     root.title("Streckkodsläsare")
-    root.minsize(1035, 600)
+    root.minsize(1200, 600)
     center(root)
     search_frame = GUISearchArea(root)
     menu_frame = GUIMenuArea(root)
