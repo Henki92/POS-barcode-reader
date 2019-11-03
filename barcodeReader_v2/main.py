@@ -101,17 +101,23 @@ class GUIMenuArea:
         description_entry = tk.Entry(win_frame, font="Helvetica 14")
         description_entry.grid(column=0, row=1, sticky="WE", padx=10)
         description_entry.focus()
-        tk.Label(win_frame, text="Kostnad", font="Helvetica 14").grid(column=1, row=0, sticky="N")
+        tk.Label(win_frame, text="Exkl. moms", font="Helvetica 14").grid(column=1, row=0, sticky="N")
         price_entry = tk.Entry(win_frame, font="Helvetica 14")
         price_entry.grid(column=1, row=1, sticky="WE", padx=10)
+        tk.Label(win_frame, text="Inkl. moms", font="Helvetica 14").grid(column=2, row=0, sticky="N")
+        price_entry_vat = tk.Entry(win_frame, font="Helvetica 14")
+        price_entry_vat.grid(column=2, row=1, sticky="WE", padx=10)
         add_article_button = tk.Button(win_frame, text="Lägg Till", font="Helvetica 14")
-        add_article_button.grid(column=2, row=1, sticky="WE")
+        add_article_button.grid(column=3, row=1, sticky="WE")
         win_frame.pack(padx=10, pady=30)
         center(win)
 
         def add_free_article(window):
-            if len(description_entry.get()) or len(price_entry.get()):
-                article_frame.add_article_to_gui(["", description_entry.get(), price_entry.get()])
+            if len(description_entry.get()) or len(price_entry.get()) or len(price_entry_vat.get()):
+                if price_entry_vat.get():
+                    article_frame.add_article_to_gui(["", description_entry.get(), price_entry_vat.get()])
+                if price_entry.get():
+                    article_frame.add_article_to_gui(["", description_entry.get(), float(price_entry.get())*1.25])
                 cost_frame.gui_update_total_cost()
                 window.destroy()
 
@@ -122,21 +128,24 @@ class GUIMenuArea:
         win_frame = tk.Frame(win)
         win.wm_title("Lägg till fri artikel")
         win.minsize(500, 300)
-        tk.Label(win_frame, text="Namn på kund(går att lämna tomt)", font="Helvetica 14").grid(column=0, row=0, sticky="N")
+        tk.Label(win_frame, text="Namn:", font="Helvetica 14").grid(column=0, row=0, sticky="N")
         name_entry = tk.Entry(win_frame, font="Helvetica 14")
-        name_entry.grid(column=0, row=1, sticky="WE", padx=10)
+        name_entry.grid(column=1, row=0, sticky="WE", padx=10)
         name_entry.focus()
+        tk.Label(win_frame, text="Telefon:", font="Helvetica 14").grid(column=0, row=1, sticky="N")
+        phone_entry = tk.Entry(win_frame, font="Helvetica 14")
+        phone_entry.grid(column=1, row=1, sticky="WE", padx=10)
         add_article_button = tk.Button(win_frame, text="Skriv ut", font="Helvetica 14")
-        add_article_button.grid(column=2, row=1, sticky="WE")
+        add_article_button.grid(column=1, row=2, sticky="WE")
         win_frame.pack(padx=10, pady=30)
         center(win)
 
         def print_button(window):
             if len(name_entry.get()):
-                basket.print_function(name_entry.get())
+                basket.print_function(name_entry.get(), phone_entry.get())
                 window.destroy()
             else:
-                basket.print_function("")
+                basket.print_function("", "")
                 window.destroy()
 
         add_article_button.configure(command=partial(print_button, win))
@@ -169,7 +178,7 @@ class DatabaseAdding:
         tk.Label(self.win_frame, text="Beskrivning", font="Helvetica 14").grid(column=2, row=0, sticky="N")
         self.description_entry = tk.Entry(self.win_frame, font="Helvetica 14")
         self.description_entry.grid(column=2, row=1, sticky="WE", padx=10)
-        tk.Label(self.win_frame, text="Kostnad", font="Helvetica 14").grid(column=3, row=0, sticky="N")
+        tk.Label(self.win_frame, text="Kostnad inkl. moms", font="Helvetica 14").grid(column=3, row=0, sticky="N")
         self.price_entry = tk.Entry(self.win_frame, font="Helvetica 14")
         self.price_entry.grid(column=3, row=1, sticky="WE", padx=10)
         self.add_article_button = tk.Button(self.win_frame, text="Lägg Till", font="Helvetica 14")
@@ -339,7 +348,7 @@ class ShoppingBasket:
     def get_cost(self):
         return self.total_cost
 
-    def print_function(self, name_customer):
+    def print_function(self, name_customer, phone_customer):
         os.system("TASKKILL /F /IM AcroRD32.exe")
         for i, desc in enumerate(self.description):
             if desc == "Reparation/Felsökning/Provkörning":
@@ -347,10 +356,10 @@ class ShoppingBasket:
                 self.article_number.append(self.article_number.pop(i))
                 self.price.append(self.price.pop(i))
                 self.number_of_items.append(self.number_of_items.pop(i))
-        self.update_recipt(name_customer)
+        self.update_recipt(name_customer, phone_customer)
         os.startfile('Kvitto.pdf')
 
-    def update_recipt(self, name_customer):
+    def update_recipt(self, name_customer, phone_customer):
         widthA4, heightA4 = A4
         c = canvas.Canvas("Kvitto.pdf", pagesize=A4)
 
@@ -363,50 +372,54 @@ class ShoppingBasket:
         # Över text
         c.setLineWidth(.3)
         c.setFont('Helvetica', 12)
-        c.drawString(widthA4 * 1.5 / 10, heightA4 * 8.1 / 10, 'Varuspecifikation')
-        c.drawString(widthA4 / 2 - 3 * cm, heightA4 * 9 / 10, 'Tack för ditt köp och välkommen åter')
+        c.drawString(widthA4 * 4.21 / 10, heightA4 * 8.8 / 10, 'Varuspecifikation')
+        c.drawString(widthA4 / 2 - 3.5 * cm, heightA4 * 9 / 10, 'Tack för ditt köp och välkommen åter')
 
         # Artiklar osv
-        data = [['Artikelnummer:', 'Beskrivning:', 'Antal:', 'Pris/st inkl.moms:'],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['', '', '', ''],
-                ['Org.nr:', '', 'Total pris exkl.moms:', ''],
-                ['556229-3745', '', 'Total pris inkl.moms:', ''],
-                ['', '', 'Datum:', '']
+        data = [['Artikelnummer:', 'Beskrivning:', 'Antal:', 'Pris/st exkl.moms:', 'Pris/st inkl.moms:'],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', '']
                 ]
 
         for i in range(0, len(self.article_number)):
             data[i + 1][0] = self.article_number[i]
             data[i + 1][1] = self.description[i]
             data[i + 1][2] = int(self.number_of_items[i])
-            data[i + 1][3] = "{:.2f} kr".format(float(self.price[i]))
+            data[i + 1][3] = "{:.2f} kr".format(float(self.price[i])/1.25)
+            data[i + 1][4] = "{:.2f} kr".format(float(self.price[i]))
 
-        if len(name_customer) > 0:
-            c.drawString(widthA4 * 4.7 / 10, heightA4 * 8.1 / 10, 'Kund:')
-            c.drawString(widthA4 * 5.25 / 10, heightA4 * 8.1 / 10, '{}'.format(name_customer))
-        data[-2][3] = "{:.2f} kr".format(self.total_cost)
-        data[-3][3] = "{:.2f} kr".format(self.total_cost / 1.25)
-        data[-1][3] = time.strftime("%Y-%m-%d")
+        if len(name_customer) > 0 and len(phone_customer) > 0:
+            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.25 / 10, 'Namn:')
+            c.drawString(widthA4 * 1.43 / 10, heightA4 * 8.25 / 10, '{}'.format(name_customer))
+            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.1 / 10, 'Telefon:')
+            c.drawString(widthA4 * 1.55 / 10, heightA4 * 8.1 / 10, '{}'.format(phone_customer))
+        elif len(name_customer) > 0:
+            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.1 / 10, 'Namn:')
+            c.drawString(widthA4 * 1.4 / 10, heightA4 * 8.1 / 10, '{}'.format(name_customer))
+        #datum
+        c.drawString(widthA4 * 7.42 / 10, heightA4 * 8.1 / 10, "Datum:")
+        c.drawString(widthA4 * 8.1 / 10, heightA4 * 8.1 / 10, '{}'.format(time.strftime("%Y-%m-%d")))
 
-        f = Table(data, colWidths=(3.5 * cm, 6.2 * cm, 2 * cm, 3 * cm),
-                  style=[('BOX', (0, 0), (-1, -2), 0.5, colors.black),
-                         ('BOX', (0, 1), (0, -4), 0.5, colors.black),
-                         ('BOX', (1, 1), (1, -4), 0.5, colors.black),
-                         ('BOX', (2, 1), (2, -4), 0.5, colors.black),
-                         ('BOX', (3, 1), (3, -4), 0.5, colors.black),
+        f = Table(data, colWidths=(3.5 * cm, 6.2 * cm, 2 * cm, 3.1 * cm, 3 * cm),
+                  style=[('BOX', (0, 0), (-1, -1), 0.5, colors.black),
+                         ('BOX', (0, 1), (0, -1), 0.5, colors.black),
+                         ('BOX', (1, 1), (1, -1), 0.5, colors.black),
+                         ('BOX', (2, 1), (2, -1), 0.5, colors.black),
+                         ('BOX', (3, 1), (3, -1), 0.5, colors.black),
+                         ('BOX', (4, 1), (4, -1), 0.5, colors.black),
                          ('GRID', (0, 0), (-1, 0), 0.25, colors.black),
                          # Botten rutorna kring total summa och moms
                          # ('GRID', (-2, -3), (-1, -2), 0.25, colors.black),
@@ -419,23 +432,25 @@ class ShoppingBasket:
                          ('ALIGN', (2, 0), (2, -1), 'CENTER'),
                          # Pris kolumnen
                          ('ALIGN', (3, 0), (3, -1), 'CENTER'),
+                         ('ALIGN', (4, 0), (4, -1), 'CENTER'),
                          ('TOPPADDING', (0, -1), (-1, -1), 15),
-                         #Botten rutan
-                         #('TOPPADDING', (0, -2), (-1, -2), 2),
-                         #('BOTTOMPADDING', (0, -2), (-1, -2), 2),
-                         ('ALIGN', (-2, -3), (-2, -2), 'RIGHT'),
-                         ('ALIGN', (-1, -3), (-1, -2), 'LEFT'),
-                         ('VALIGN', (-1, -2), (-1, -2), 'BOTTOM'),
-                         ('FONTSIZE', (-2, -3), (-1, -3), 8),
-                         ('FONTSIZE', (-2, -2), (-1, -2), 12),
+
                          ])
         width = 6 * cm
         height = 4 * cm
         f.wrapOn(c, width, height)
-        f.drawOn(c, widthA4 * 1.5 / 10, heightA4 * 3.8 / 10)
+        f.drawOn(c, widthA4 * 0.75 / 10, heightA4 * 4.5 / 10)
+
+        c.drawString(widthA4 * 5.7 / 10, heightA4 * 4.25 / 10, "Total pris exkl. moms:")
+        c.drawString(widthA4 * 7.75 / 10, heightA4 * 4.25 / 10, '{:.2f} kr'.format(self.total_cost))
+        c.setFont('Helvetica', 24)
+        c.drawString(widthA4 * 3.85 / 10, heightA4 * 3.95 / 10, "Total pris inkl. moms:")
+        c.drawString(widthA4 * 7.76 / 10, heightA4 * 3.95 / 10, '{:.2f} kr'.format(self.total_cost / 1.25))
+        c.setFont('Helvetica', 12)
 
         # Under text
         data = [['', 'Mullhyttans Cykel & Såg', '', ''],
+                ['Org.nr:', '556229-3745', '', ''],
                 ['Address:', 'Selhagsvägen 3', '', ''],
                 ['', '716 94 Mullhyttan', '', ''],
                 ['Telefon:', '0585-40338', '', ''],
@@ -461,7 +476,7 @@ class ShoppingBasket:
         ])
 
         d.wrapOn(c, width, height)
-        d.drawOn(c, widthA4 * 1.5 / 10, heightA4 * 2 / 10)
+        d.drawOn(c, widthA4 * 1.5 / 10, heightA4 * 1.9 / 10)
 
         c.save()
 
