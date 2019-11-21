@@ -4,14 +4,12 @@ import csv
 import os
 from functools import partial
 from tkinter.messagebox import showinfo
-from threading import Timer
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table
 from reportlab.lib.units import cm
 import time
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-import psutil
 
 
 class GUISearchArea:
@@ -282,7 +280,7 @@ class GUIArticleArea:
     def remove_article(self, row_to_remove):
         basket.remove_item(row_to_remove)
         cost_frame.gui_update_total_cost()
-        self.article_rows -= 1
+        #self.article_rows -= 1
         row_to_remove.destroy()
 
 
@@ -414,14 +412,17 @@ class ShoppingBasket:
             data[i + 1][4] = "{:.2f} kr".format(float(self.price[i]))
 
         if len(name_customer) > 0 and len(phone_customer) > 0:
-            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.25 / 10, 'Namn:')
-            c.drawString(widthA4 * 1.43 / 10, heightA4 * 8.25 / 10, '{}'.format(name_customer))
             c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.1 / 10, 'Telefon:')
             c.drawString(widthA4 * 1.55 / 10, heightA4 * 8.1 / 10, '{}'.format(phone_customer))
+            c.setFont('Helvetica', 24)
+            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.3 / 10, 'Namn:')
+            c.drawString(widthA4 * 2 / 10, heightA4 * 8.3 / 10, '{}'.format(name_customer))
         elif len(name_customer) > 0:
-            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.1 / 10, 'Namn:')
-            c.drawString(widthA4 * 1.4 / 10, heightA4 * 8.1 / 10, '{}'.format(name_customer))
+            c.setFont('Helvetica', 24)
+            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.15 / 10, 'Namn:')
+            c.drawString(widthA4 * 2 / 10, heightA4 * 8.15 / 10, '{}'.format(name_customer))
         #datum
+        c.setFont('Helvetica', 12)
         c.drawString(widthA4 * 7.42 / 10, heightA4 * 8.1 / 10, "Datum:")
         c.drawString(widthA4 * 8.1 / 10, heightA4 * 8.1 / 10, '{}'.format(time.strftime("%Y-%m-%d")))
 
@@ -454,10 +455,10 @@ class ShoppingBasket:
         f.drawOn(c, widthA4 * 0.75 / 10, heightA4 * 4.5 / 10)
 
         c.drawString(widthA4 * 5.7 / 10, heightA4 * 4.25 / 10, "Total pris exkl. moms:")
-        c.drawString(widthA4 * 7.75 / 10, heightA4 * 4.25 / 10, '{:.2f} kr'.format(self.total_cost))
+        c.drawString(widthA4 * 7.75 / 10, heightA4 * 4.25 / 10, '{:.2f} kr'.format(self.total_cost / 1.25))
         c.setFont('Helvetica', 24)
         c.drawString(widthA4 * 3.85 / 10, heightA4 * 3.95 / 10, "Total pris inkl. moms:")
-        c.drawString(widthA4 * 7.76 / 10, heightA4 * 3.95 / 10, '{:.2f} kr'.format(self.total_cost / 1.25))
+        c.drawString(widthA4 * 7.76 / 10, heightA4 * 3.95 / 10, '{:.2f} kr'.format(self.total_cost))
         c.setFont('Helvetica', 12)
 
         # Under text
