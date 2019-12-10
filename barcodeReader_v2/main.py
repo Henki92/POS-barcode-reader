@@ -386,22 +386,22 @@ class ShoppingBasket:
         c.drawString(widthA4 / 2 - 3.5 * cm, heightA4 * 9 / 10, 'Tack för ditt köp och välkommen åter')
 
         # Artiklar osv
-        data = [['Artikelnummer:', 'Beskrivning:', 'Antal:', 'Pris/st exkl.moms:', 'Pris/st inkl.moms:'],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', ''],
-                ['', '', '', '', '']
+        data = [['Artikelnummer:', 'Beskrivning:', 'Antal:', 'Pris/st exkl.moms:', 'Pris/st inkl.moms:', 'Radtotal:'],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', '']
                 ]
 
         for i in range(0, len(self.article_number)):
@@ -410,23 +410,24 @@ class ShoppingBasket:
             data[i + 1][2] = int(self.number_of_items[i])
             data[i + 1][3] = "{:.2f} kr".format(float(self.price[i])/1.25)
             data[i + 1][4] = "{:.2f} kr".format(float(self.price[i]))
+            data[i + 1][5] = "{:.2f} kr".format(float(self.price[i])*int(self.number_of_items[i]))
 
         if len(name_customer) > 0 and len(phone_customer) > 0:
-            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.1 / 10, 'Telefon:')
-            c.drawString(widthA4 * 1.55 / 10, heightA4 * 8.1 / 10, '{}'.format(phone_customer))
+            c.drawString(widthA4 * 0.6 / 10, heightA4 * 8.1 / 10, 'Telefon:')
+            c.drawString(widthA4 * 1.35 / 10, heightA4 * 8.1 / 10, '{}'.format(phone_customer))
             c.setFont('Helvetica', 24)
-            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.3 / 10, 'Namn:')
-            c.drawString(widthA4 * 2 / 10, heightA4 * 8.3 / 10, '{}'.format(name_customer))
+            c.drawString(widthA4 * 0.6 / 10, heightA4 * 8.3 / 10, 'Namn:')
+            c.drawString(widthA4 * 1.8 / 10, heightA4 * 8.3 / 10, '{}'.format(name_customer))
         elif len(name_customer) > 0:
             c.setFont('Helvetica', 24)
-            c.drawString(widthA4 * 0.8 / 10, heightA4 * 8.15 / 10, 'Namn:')
-            c.drawString(widthA4 * 2 / 10, heightA4 * 8.15 / 10, '{}'.format(name_customer))
+            c.drawString(widthA4 * 0.6 / 10, heightA4 * 8.15 / 10, 'Namn:')
+            c.drawString(widthA4 * 1.8 / 10, heightA4 * 8.15 / 10, '{}'.format(name_customer))
         #datum
         c.setFont('Helvetica', 12)
         c.drawString(widthA4 * 7.42 / 10, heightA4 * 8.1 / 10, "Datum:")
         c.drawString(widthA4 * 8.1 / 10, heightA4 * 8.1 / 10, '{}'.format(time.strftime("%Y-%m-%d")))
 
-        f = Table(data, colWidths=(3.5 * cm, 6.2 * cm, 2 * cm, 3.1 * cm, 3 * cm),
+        f = Table(data, colWidths=(2.6 * cm, 6.2 * cm, 1.2 * cm, 3.1 * cm, 3 * cm, 2.5 * cm),
                   style=[('BOX', (0, 0), (-1, -1), 0.5, colors.black),
                          ('BOX', (0, 1), (0, -1), 0.5, colors.black),
                          ('BOX', (1, 1), (1, -1), 0.5, colors.black),
@@ -446,19 +447,22 @@ class ShoppingBasket:
                          # Pris kolumnen
                          ('ALIGN', (3, 0), (3, -1), 'CENTER'),
                          ('ALIGN', (4, 0), (4, -1), 'CENTER'),
+                         ('ALIGN', (5, 0), (5, -1), 'CENTER'),
                          ('TOPPADDING', (0, -1), (-1, -1), 15),
 
                          ])
         width = 6 * cm
         height = 4 * cm
         f.wrapOn(c, width, height)
-        f.drawOn(c, widthA4 * 0.75 / 10, heightA4 * 4.5 / 10)
+        f.drawOn(c, widthA4 * 0.55 / 10, heightA4 * 4.5 / 10)
 
         c.drawString(widthA4 * 5.7 / 10, heightA4 * 4.25 / 10, "Total pris exkl. moms:")
         c.drawString(widthA4 * 7.75 / 10, heightA4 * 4.25 / 10, '{:.2f} kr'.format(self.total_cost / 1.25))
+        c.drawString(widthA4 * 5.7 / 10, heightA4 * 4.05 / 10, "Moms om 25%:")
+        c.drawString(widthA4 * 7.75 / 10, heightA4 * 4.05 / 10, '{:.2f} kr'.format((self.total_cost / 1.25) * 0.25))
         c.setFont('Helvetica', 24)
-        c.drawString(widthA4 * 3.85 / 10, heightA4 * 3.95 / 10, "Total pris inkl. moms:")
-        c.drawString(widthA4 * 7.76 / 10, heightA4 * 3.95 / 10, '{:.2f} kr'.format(self.total_cost))
+        c.drawString(widthA4 * 3.55 / 10, heightA4 * 3.75 / 10, "Total pris inkl. moms:")
+        c.drawString(widthA4 * 7.46 / 10, heightA4 * 3.75 / 10, '{:.2f} kr'.format(self.total_cost))
         c.setFont('Helvetica', 12)
 
         # Under text
@@ -489,7 +493,7 @@ class ShoppingBasket:
         ])
 
         d.wrapOn(c, width, height)
-        d.drawOn(c, widthA4 * 1.5 / 10, heightA4 * 1.9 / 10)
+        d.drawOn(c, widthA4 * 1.5 / 10, heightA4 * 1.5 / 10)
 
         c.save()
 
