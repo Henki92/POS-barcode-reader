@@ -10,6 +10,7 @@ from reportlab.lib.units import cm
 import time
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
+from reportlab.pdfbase.pdfmetrics import stringWidth
 
 
 class GUISearchArea:
@@ -64,21 +65,28 @@ class GUIMenuArea:
     def __init__(self, parent):
         self.frame = tk.Frame(parent, width=350, height=600)
         self.frame.grid_propagate(0)
-        self.button_service = tk.Button(self.frame, text="Lägg till service/reperation", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=0, sticky="WE", padx=30, pady=10)
+        self.button_service = tk.Button(self.frame, text="Lägg till service/reperation", width=50, height=2, padx=5, pady=5)
         self.button_service.pack(side="top", expand="yes", padx=10, pady=10)
         self.button_service.configure(command=self.service_window, borderwidth=2, relief="raised", bg="snow3")
-        self.button_free_text = tk.Button(self.frame, text="Lägg till fri artikel", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=1, sticky="WE", padx=30, pady=10)
+        self.button_free_text = tk.Button(self.frame, text="Lägg till fri artikel", width=50, height=2, padx=5, pady=5)
         self.button_free_text.pack(side="top", expand="yes", padx=10, pady=10)
         self.button_free_text.configure(command=self.free_article_window, borderwidth=2, relief="raised", bg="snow3")
-        self.button_print_receipt = tk.Button(self.frame, text="Skriv ut kvitto", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=2, sticky="WE", padx=30, pady=10)
+        self.button_print_receipt = tk.Button(self.frame, text="Skriv ut kvitto", width=50, height=2, padx=5, pady=5)
         self.button_print_receipt.pack(side="top", expand="yes", padx=10, pady=10)
         self.button_print_receipt.configure(command=self.print_receipt, borderwidth=2, relief="raised", bg="snow3")
-        self.button_clear_all = tk.Button(self.frame, text="Rensa rutan med artiklar", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=3, sticky="WE", padx=30, pady=10)
+        self.button_clear_all = tk.Button(self.frame, text="Rensa rutan med artiklar", width=50, height=2, padx=5, pady=5)
         self.button_clear_all.pack(side="top", expand="yes", padx=10, pady=10)
         self.button_clear_all.configure(command=self.remove_all_articles, borderwidth=2, relief="raised", bg="snow3")
-        self.button_add_to_database = tk.Button(self.frame, text="Lägg till artikel i databas", width=50, height=2, padx=5, pady=5)#.grid(column=0, row=4, sticky="WE", padx=30, pady=10)
+        self.button_add_to_database = tk.Button(self.frame, text="Lägg till artikel i databas", width=50, height=2, padx=5, pady=5)
         self.button_add_to_database.pack(side="top", expand="yes", padx=10, pady=10)
         self.button_add_to_database.configure(command=self.add_func, borderwidth=2, relief="raised", bg="snow3")
+        #self.button_save_get_receipt = tk.Button(self.frame, text="Spara/Hämta kvitto", width=50, height=2,
+        #                                        padx=5, pady=5)
+        #self.button_save_get_receipt.pack(side="top", expand="yes", padx=10, pady=10)
+        #self.button_save_get_receipt.configure(command=self.save_get_receipt, borderwidth=2, relief="raised", bg="snow3")
+
+    #def save_get_receipt(self):
+        #print("HEj")
 
     def service_window(self):
         win = tk.Toplevel()
@@ -376,32 +384,44 @@ class ShoppingBasket:
         # Rubrik kvitto
         c.setFont('Helvetica', 28)
         c.setLineWidth(.8)
-        # c.drawString(widthA4 / 2 - 1 * cm, heightA4 * 9 / 10, 'Kvitto')
-        c.drawString(2.8 * cm, heightA4 * 9.2 / 10, 'Mullhyttans Cykel & Såg Service AB')
+        str = 'Mullhyttans Cykel & Såg Service AB'
+        strLen = stringWidth(str, 'Helvetica', 28)
+        c.drawString(widthA4 / 2 - strLen / 2, heightA4 * 9.2 / 10, str)
 
         # Över text
         c.setLineWidth(.3)
         c.setFont('Helvetica', 12)
-        c.drawString(widthA4 * 4.21 / 10, heightA4 * 8.8 / 10, 'Varuspecifikation')
-        c.drawString(widthA4 / 2 - 3.5 * cm, heightA4 * 9 / 10, 'Tack för ditt köp och välkommen åter')
+        str = 'Varuspecifikation'
+        strLen = stringWidth(str, 'Helvetica', 12)
+        c.drawString(widthA4 / 2 - strLen / 2, heightA4 * 8.8 / 10, str)
+        str = 'Tack för ditt köp och välkommen åter'
+        strLen = stringWidth(str, 'Helvetica', 12)
+        c.drawString(widthA4 / 2 - strLen / 2, heightA4 * 9 / 10, str)
+
+        col1 = 2.6
+        col2 = 6.2
+        col3 = 1.2
+        col4 = 3.1
+        col5 = 3
+        tableWidth = col1 + col2 + col3 + col4 + col5
 
         # Artiklar osv
-        data = [['Artikelnummer:', 'Beskrivning:', 'Antal:', 'Pris/st exkl.moms:', 'Pris/st inkl.moms:', 'Radtotal:'],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', ''],
-                ['', '', '', '', '', '']
+        data = [['Artikelnummer:', 'Beskrivning:', 'Antal:', 'Pris/st exkl.moms:', 'Summa:'],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', ''],
+                ['', '', '', '', '']
                 ]
 
         for i in range(0, len(self.article_number)):
@@ -409,25 +429,22 @@ class ShoppingBasket:
             data[i + 1][1] = self.description[i]
             data[i + 1][2] = int(self.number_of_items[i])
             data[i + 1][3] = "{:.2f} kr".format(float(self.price[i])/1.25)
-            data[i + 1][4] = "{:.2f} kr".format(float(self.price[i]))
-            data[i + 1][5] = "{:.2f} kr".format(float(self.price[i])*int(self.number_of_items[i]))
+            data[i + 1][4] = "{:.2f} kr".format(float(self.price[i]/1.25)*int(self.number_of_items[i]))
 
         if len(name_customer) > 0 and len(phone_customer) > 0:
-            c.drawString(widthA4 * 0.6 / 10, heightA4 * 8.1 / 10, 'Telefon:')
-            c.drawString(widthA4 * 1.35 / 10, heightA4 * 8.1 / 10, '{}'.format(phone_customer))
+            c.drawString(widthA4/2 - tableWidth*cm/2, heightA4 * 8.1 / 10, 'Telefon: {}'.format(phone_customer))
             c.setFont('Helvetica', 24)
-            c.drawString(widthA4 * 0.6 / 10, heightA4 * 8.3 / 10, 'Namn:')
-            c.drawString(widthA4 * 1.8 / 10, heightA4 * 8.3 / 10, '{}'.format(name_customer))
+            c.drawString(widthA4/2 - tableWidth*cm/2, heightA4 * 8.3 / 10, 'Namn: {}'.format(name_customer))
         elif len(name_customer) > 0:
             c.setFont('Helvetica', 24)
-            c.drawString(widthA4 * 0.6 / 10, heightA4 * 8.15 / 10, 'Namn:')
-            c.drawString(widthA4 * 1.8 / 10, heightA4 * 8.15 / 10, '{}'.format(name_customer))
+            c.drawString(widthA4/2 - tableWidth*cm/2, heightA4 * 8.15 / 10, 'Namn: {}'.format(name_customer))
         #datum
         c.setFont('Helvetica', 12)
-        c.drawString(widthA4 * 7.42 / 10, heightA4 * 8.1 / 10, "Datum:")
-        c.drawString(widthA4 * 8.1 / 10, heightA4 * 8.1 / 10, '{}'.format(time.strftime("%Y-%m-%d")))
+        str = "Datum: {}".format(time.strftime("%Y-%m-%d"))
+        strLen = stringWidth(str, 'Helvetica', 12)
+        c.drawString(widthA4/2 + tableWidth*cm/2 - strLen, heightA4 * 8.1 / 10, str)
 
-        f = Table(data, colWidths=(2.6 * cm, 6.2 * cm, 1.2 * cm, 3.1 * cm, 3 * cm, 2.5 * cm),
+        f = Table(data, colWidths=(col1 * cm, col2 * cm, col3 * cm, col4 * cm, col5 * cm),
                   style=[('BOX', (0, 0), (-1, -1), 0.5, colors.black),
                          ('BOX', (0, 1), (0, -1), 0.5, colors.black),
                          ('BOX', (1, 1), (1, -1), 0.5, colors.black),
@@ -447,22 +464,24 @@ class ShoppingBasket:
                          # Pris kolumnen
                          ('ALIGN', (3, 0), (3, -1), 'CENTER'),
                          ('ALIGN', (4, 0), (4, -1), 'CENTER'),
-                         ('ALIGN', (5, 0), (5, -1), 'CENTER'),
                          ('TOPPADDING', (0, -1), (-1, -1), 15),
 
                          ])
         width = 6 * cm
         height = 4 * cm
-        f.wrapOn(c, width, height)
-        f.drawOn(c, widthA4 * 0.55 / 10, heightA4 * 4.5 / 10)
+        f.wrapOn(c, tableWidth * cm, height)
+        f.drawOn(c, widthA4 / 2 - tableWidth * cm / 2, heightA4 * 4.5 / 10)
 
-        c.drawString(widthA4 * 5.7 / 10, heightA4 * 4.25 / 10, "Total pris exkl. moms:")
-        c.drawString(widthA4 * 7.75 / 10, heightA4 * 4.25 / 10, '{:.2f} kr'.format(self.total_cost / 1.25))
-        c.drawString(widthA4 * 5.7 / 10, heightA4 * 4.05 / 10, "Moms om 25%:")
-        c.drawString(widthA4 * 7.75 / 10, heightA4 * 4.05 / 10, '{:.2f} kr'.format((self.total_cost / 1.25) * 0.25))
+        str = "Total pris exkl. moms: {:.2f} kr".format(self.total_cost / 1.25)
+        strLen = stringWidth(str, 'Helvetica', 12)
+        c.drawString(widthA4/2 + tableWidth*cm/2 - strLen, heightA4 * 4.25 / 10, str)
+        str = "Moms 25%: {:.2f} kr".format(self.total_cost / 1.25)
+        strLen = stringWidth(str, 'Helvetica', 12)
+        c.drawString(widthA4/2 + tableWidth*cm/2 - strLen, heightA4 * 4.05 / 10, str)
         c.setFont('Helvetica', 24)
-        c.drawString(widthA4 * 3.55 / 10, heightA4 * 3.75 / 10, "Total pris inkl. moms:")
-        c.drawString(widthA4 * 7.46 / 10, heightA4 * 3.75 / 10, '{:.2f} kr'.format(self.total_cost))
+        str = "Total pris inkl. moms: {:.2f} kr".format(self.total_cost)
+        strLen = stringWidth(str, 'Helvetica', 24)
+        c.drawString(widthA4/2 + tableWidth*cm/2 - strLen, heightA4 * 3.75 / 10, "Total pris inkl. moms: {:.2f} kr".format(self.total_cost))
         c.setFont('Helvetica', 12)
 
         # Under text
