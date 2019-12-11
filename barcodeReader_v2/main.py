@@ -40,6 +40,12 @@ class GUISearchArea:
                                 if row[0] == self.search_entry.get():
                                     break
                                 barcodelist.append(row[0])
+            elif self.search_entry.get() in basket.EAN:
+                basket.number_of_items[basket.EAN.index(self.search_entry.get())] += 1
+                spin_boxes[basket.EAN.index(self.search_entry.get())].set(basket.number_of_items[basket.EAN.index(self.search_entry.get())])
+                value = basket.number_of_items[basket.EAN.index(self.search_entry.get())]
+                basket.update_total()
+                cost_frame.gui_update_total_cost()
             else:
                 barcodelist.append(self.search_entry.get())
             for barcode in barcodelist:
@@ -54,11 +60,13 @@ class GUISearchArea:
                                 article_info.append(row[0])
                                 article_info.append(row[1])
                                 article_info.append(float(row[4])*1.25)
+                                article_info.append(barcode)
                                 break
                 if not article_info == []:
                     article_frame.add_article_to_gui(article_info)
                     cost_frame.gui_update_total_cost()
                     self.search_entry.delete(0, 30)
+            self.search_entry.delete(0, 30)
 
 
 class GUIMenuArea:
@@ -268,7 +276,10 @@ class GUIArticleArea:
     def add_article_to_gui(self, article_info):
         self.article_rows += 1
         temp_frame = tk.Frame(self.article_frame,  borderwidth=2, relief="groove", width=400)
-        num_box = tk.Spinbox(temp_frame, from_=1, to=20, width=3, font="Helvetica 12")
+        var_int = tk.IntVar()
+        var_int.set(1)
+        num_box = tk.Spinbox(temp_frame, from_=1, to=20, width=3, font="Helvetica 12", textvariable=var_int)
+        spin_boxes.append(var_int)
 
         def spin_box():
             value = num_box.get()
@@ -284,6 +295,7 @@ class GUIArticleArea:
         tk.Button(temp_frame, text="Ta bort artikel", command=partial(self.remove_article, temp_frame)).grid(row=0, column=5, padx=5)
         temp_frame.grid(row=self.article_rows + 1, column=2)
         basket.append_item(article_info, temp_frame)
+
 
     def remove_article(self, row_to_remove):
         basket.remove_item(row_to_remove)
@@ -323,6 +335,7 @@ class ShoppingBasket:
         self.number_of_items = []
         self.total_cost = 0
         self.frames = []
+        self.EAN = []
 
     def reset(self):
         self.article_number = []
@@ -331,12 +344,14 @@ class ShoppingBasket:
         self.number_of_items = []
         self.total_cost = 0
         self.frames = []
+        self.EAN = []
 
     def append_item(self, article_found, temp_frame):
         self.article_number.append(article_found[0])
         self.description.append(article_found[1])
         self.price.append(article_found[2])
         self.number_of_items.append(1)
+        self.EAN.append(article_found[3])
         self.frames.append(temp_frame)
         self.update_total()
 
@@ -552,6 +567,7 @@ if __name__ == "__main__":
     root.title("Streckkodsläsare")
     root.minsize(1200, 600)
     center(root)
+    spin_boxes = []
     search_frame = GUISearchArea(root)
     menu_frame = GUIMenuArea(root)
     article_frame = GUIArticleArea(root)
