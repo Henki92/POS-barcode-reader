@@ -101,7 +101,7 @@ class GUIMenuArea:
         win_frame = tk.Frame(win)
         win.wm_title("Lägg till reperation/service")
         win.minsize(500, 300)
-        tk.Label(win_frame, text="Arbetskostnad service:", font="Helvetica 14").grid(column=0, row=0, sticky="E")
+        tk.Label(win_frame, text="Arbetskostnad service (inkl moms):", font="Helvetica 14").grid(column=0, row=0, sticky="E")
         reapir_cost = tk.Entry(win_frame, font="Helvetica 14")
         reapir_cost.grid(column=1, row=0, sticky="WE", padx=10)
         reapir_cost.focus()
@@ -112,7 +112,7 @@ class GUIMenuArea:
 
         def add_service(window):
             if len(reapir_cost.get()):
-                article_frame.add_article_to_gui(["", "Reparation/Felsökning/Provkörning", reapir_cost.get()])
+                article_frame.add_article_to_gui(["", "Reparation/Felsökning/Provkörning", reapir_cost.get(), ""])
                 cost_frame.gui_update_total_cost()
                 window.destroy()
 
@@ -141,9 +141,9 @@ class GUIMenuArea:
         def add_free_article(window):
             if len(description_entry.get()) or len(price_entry.get()) or len(price_entry_vat.get()):
                 if price_entry_vat.get():
-                    article_frame.add_article_to_gui(["", description_entry.get(), price_entry_vat.get()])
+                    article_frame.add_article_to_gui(["", description_entry.get(), price_entry_vat.get(), ""])
                 if price_entry.get():
-                    article_frame.add_article_to_gui(["", description_entry.get(), float(price_entry.get())*1.25])
+                    article_frame.add_article_to_gui(["", description_entry.get(), float(price_entry.get())*1.25, ""])
                 cost_frame.gui_update_total_cost()
                 window.destroy()
 
@@ -152,7 +152,7 @@ class GUIMenuArea:
     def print_receipt(self):
         win = tk.Toplevel()
         win_frame = tk.Frame(win)
-        win.wm_title("Lägg till fri artikel")
+        win.wm_title("Skriv ut")
         win.minsize(500, 300)
         tk.Label(win_frame, text="Namn:", font="Helvetica 14").grid(column=0, row=0, sticky="N")
         name_entry = tk.Entry(win_frame, font="Helvetica 14")
@@ -444,7 +444,7 @@ class ShoppingBasket:
             data[i + 1][1] = self.description[i]
             data[i + 1][2] = int(self.number_of_items[i])
             data[i + 1][3] = "{:.2f} kr".format(float(self.price[i])/1.25)
-            data[i + 1][4] = "{:.2f} kr".format(float(self.price[i]/1.25)*int(self.number_of_items[i]))
+            data[i + 1][4] = "{:.2f} kr".format((float(self.price[i])/1.25)*int(self.number_of_items[i]))
 
         if len(name_customer) > 0 and len(phone_customer) > 0:
             c.drawString(widthA4/2 - tableWidth*cm/2, heightA4 * 8.1 / 10, 'Telefon: {}'.format(phone_customer))
@@ -490,7 +490,7 @@ class ShoppingBasket:
         str = "Total pris exkl. moms: {:.2f} kr".format(self.total_cost / 1.25)
         strLen = stringWidth(str, 'Helvetica', 12)
         c.drawString(widthA4/2 + tableWidth*cm/2 - strLen, heightA4 * 4.25 / 10, str)
-        str = "Moms 25%: {:.2f} kr".format(self.total_cost / 1.25)
+        str = "Moms 25%: {:.2f} kr".format((self.total_cost / 1.25)*0.25)
         strLen = stringWidth(str, 'Helvetica', 12)
         c.drawString(widthA4/2 + tableWidth*cm/2 - strLen, heightA4 * 4.05 / 10, str)
         c.setFont('Helvetica', 24)
