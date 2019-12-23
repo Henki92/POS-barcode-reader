@@ -338,6 +338,7 @@ class ShoppingBasket:
         self.EAN = []
 
     def reset(self):
+        global spin_boxes
         self.article_number = []
         self.description = []
         self.price = []
@@ -345,6 +346,7 @@ class ShoppingBasket:
         self.total_cost = 0
         self.frames = []
         self.EAN = []
+        spin_boxes = []
 
     def append_item(self, article_found, temp_frame):
         self.article_number.append(article_found[0])
