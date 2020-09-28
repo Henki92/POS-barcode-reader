@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['C:\\Users\\LifeIsASimulation\\Desktop\\GIT\\POS-barcode-reader\\barcodeReader_v2'],
+             pathex=['C:\\Users\\LifeIsASimulation\\Desktop\\Desktop\\GIT\\POS-barcode-reader\\barcodeReader_v2'],
              binaries=[],
              datas=[],
              hiddenimports=[],

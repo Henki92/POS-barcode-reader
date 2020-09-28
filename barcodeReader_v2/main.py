@@ -32,7 +32,7 @@ class GUISearchArea:
         barcodelist = []
         if len(self.search_entry.get()) > 0:
             if 'paket' in self.search_entry.get():
-                with open('databaspaket.csv', 'r', newline='', encoding='UTF8') as f:
+                with open('datbaspaket/databaspaket.csv', 'r', newline='', encoding='UTF8') as f:
                     reader = csv.reader(f, delimiter=";")
                     for row in reader:
                         if row[0] == self.search_entry.get():
@@ -48,24 +48,27 @@ class GUISearchArea:
                 cost_frame.gui_update_total_cost()
             else:
                 barcodelist.append(self.search_entry.get())
-            for barcode in barcodelist:
-                article_info = []
-                # Find the article in the database
-                with open('databas.csv', 'r', newline='', encoding='UTF8') as f:
-                    reader = csv.reader(f, delimiter=";")
-                    listbase = list(reader)
-                    for i, row in enumerate(listbase):
-                        if not row == []:
-                            if barcode == row[6] or barcode == row[0]:
-                                article_info.append(row[0])
-                                article_info.append(row[1])
-                                article_info.append(float(row[4])*1.25)
-                                article_info.append(barcode)
-                                break
-                if not article_info == []:
-                    article_frame.add_article_to_gui(article_info)
-                    cost_frame.gui_update_total_cost()
-                    self.search_entry.delete(0, 30)
+
+            for file in os.listdir('.'):
+                if file.endswith(".csv"):
+                    for barcode in barcodelist:
+                        article_info = []
+                        # Find the article in the database
+                        with open(file, 'r', newline='', encoding='UTF8') as f:
+                            reader = csv.reader(f, delimiter=";")
+                            listbase = list(reader)
+                            for i, row in enumerate(listbase):
+                                if not row == []:
+                                    if barcode == row[6] or barcode == row[0]:
+                                        article_info.append(row[0])
+                                        article_info.append(row[1])
+                                        article_info.append(float(row[4])*1.25)
+                                        article_info.append(barcode)
+                                        break
+                        if not article_info == []:
+                            article_frame.add_article_to_gui(article_info)
+                            cost_frame.gui_update_total_cost()
+                            self.search_entry.delete(0, 30)
             self.search_entry.delete(0, 30)
 
 
