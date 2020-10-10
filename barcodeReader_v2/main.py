@@ -59,10 +59,10 @@ class GUISearchArea:
                             listbase = list(reader)
                             for i, row in enumerate(listbase):
                                 if not row == []:
-                                    if barcode == row[6] or barcode == row[0]:
+                                    if barcode == row[3] or barcode == row[0]:
                                         article_info.append(row[0])
                                         article_info.append(row[1])
-                                        article_info.append(float(row[4])*1.25)
+                                        article_info.append(float(row[2])*1.25)
                                         article_info.append(barcode)
                                         break
                         if not article_info == []:
