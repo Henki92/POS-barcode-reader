@@ -221,7 +221,13 @@ class DatabaseAdding:
             barcode = self.barcode.get()
             article_info = []
             # Find the article in the database
-            with open('databas.csv', 'r', newline='', encoding='UTF8') as f:
+            filename = "tillagda_streckkkoder.csv"
+            file_exists = os.path.isfile(filename)
+            if file_exists:
+                pass
+            else:
+                file = open("tillagda_streckkkoder.csv", "w").close()
+            with open(filename, 'r', newline='', encoding='UTF8') as f:
                 reader = csv.reader(f, delimiter=";")
                 listBase = list(reader)
                 for i, row in enumerate(listBase):
@@ -230,7 +236,7 @@ class DatabaseAdding:
                             showinfo("Window", "Streckoden finns redan i databasen!")
                             window.destroy()
                             return
-            with open('databas.csv', 'a', newline='', encoding='UTF8') as f:
+            with open(filename, 'a', newline='', encoding='UTF8') as f:
                 writer = csv.writer(f, delimiter=";")
                 fields = [self.artnr.get(), str(self.description_entry.get()),
                           "", "",
@@ -239,6 +245,7 @@ class DatabaseAdding:
                 showinfo("Window", "Artikel tillagd!")
 
             window.destroy()
+
 
 
 class GUIArticleArea:
