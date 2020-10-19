@@ -4,7 +4,6 @@ build/
 venv/
 barcodeReader
 barcodeReader_v2
-main.py
 main_lokal.py
 main_network
 MVC_2/pyinstaller_builder/streckkodslasare.spec
