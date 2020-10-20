@@ -8,6 +8,8 @@ main_lokal.py
 main_network
 MVC_2/pyinstaller_builder/streckkodslasare.spec
 MVC_2/pyinstaller_builder/build
+*.csv
+*.pdf
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

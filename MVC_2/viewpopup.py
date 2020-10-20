@@ -69,7 +69,6 @@ class PrintRecipt:
         self.add_btn = tk.Button(win_frame, text="Skriv ut", font="Helvetica 14")
         self.add_btn.grid(column=1, row=2, sticky="WE")
         win_frame.pack(padx=10, pady=30)
-        self.add_btn.configure(command=dummyViewPippa)
         center(self.win)
 
 

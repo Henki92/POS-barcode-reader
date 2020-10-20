@@ -18,14 +18,25 @@ class Model:
 
     def get_article_from_db(self, barcode):
         article = None
-        for file in os.listdir(self.path):
-            if file.endswith(".csv"):
-                print("Opening file:", self.path + '\\' + file)
-                db_file_list = self.open_file_as_list(self.path + '\\' + file)
-                article = self.find_article_in_list(db_file_list, barcode)
-                if article is not None:
-                    break
+        db_file_list = self.check_folder_for_files(self.path + "\\")
+        db_file_list = db_file_list if len(db_file_list) else self.check_folder_for_files('.')
+        print(db_file_list)
+        for file in db_file_list:
+            print("Opening file:", file)
+            db_as_list = self.open_file_as_list(file)
+            article = self.find_article_in_list(db_as_list, barcode)
+            if article is not None:
+                return article
         return article
+
+    def check_folder_for_files(self, path):
+        file_list = []
+        print("Checking for files in: ", path)
+        for file in os.listdir(path):
+            print("Found file:", file)
+            if file.endswith(".csv"):
+                file_list.append(path + "\\" + file)
+        return file_list
 
     def open_file_as_list(self, file_path):
         with open(file_path, encoding='UTF-8') as f:
@@ -34,7 +45,7 @@ class Model:
     def find_article_in_list(self, db_file_list, barcode):
         for row in db_file_list:
             if barcode in row[Col.ArtNr] or barcode in row[Col.EAN]:
-                return row
+                return row[0:4]
 
     def add_article_and_update_price(self, article):
         row = self.get_row_of_article_in_basket(article[Col.EAN])
@@ -71,12 +82,12 @@ class Model:
 
     def add_article_to_DB(self, article_info):
         # Find the article in the database
-        filename = "tillagda_streckkkoder.csv"
+        filename = "tillagda_streckkoder.csv"
         file_exists = os.path.isfile(self.path + '\\' + filename)
         if file_exists:
             pass
         else:
-            file = open("tillagda_streckkkoder.csv", "w").close()
+            file = open(self.path + '\\' + filename, "w").close()
         file_list = self.open_file_as_list(self.path + '\\' + filename)
         for row in file_list:
             if article_info[Col.EAN] in row[Col.EAN]:

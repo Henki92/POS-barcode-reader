@@ -1,11 +1,9 @@
 from model import Model
-from viewmain import *
-from viewpopup import *
 from functools import partial
 
-from MVC_2.viewmain import GUIMenuArea, GUISearchArea, GUIArticleArea, GUITotalPrice, GUIitems
-from MVC_2.viewpopup import ErrorShow, AddRepair, AddRandomArticle, PrintRecipt, AddArticleToDB
-from MVC_2.print import print_function
+from viewmain import GUIMenuArea, GUISearchArea, GUIArticleArea, GUITotalPrice, GUIitems
+from viewpopup import ErrorShow, AddRepair, AddRandomArticle, PrintRecipt, AddArticleToDB
+from printrecipt import print_function
 
 from threading import Timer
 try:
@@ -68,13 +66,13 @@ class Controller:
     def reset_timer(self, Event = None):
         if self.timer is not None:
             self.timer.cancel()
-        self.timer = Timer(240.0, dummy_d)
+        self.timer = Timer(240.0, self.clear_all_btn_psd)
         self.timer.start()
 
     def search_article_btn_psd(self, Event = None):   # Need Event=None for when using Return
         EAN = self.GUIsearch.search_entry.get()     # Get barcode
         self.GUIsearch.search_entry.delete(0, 50)   # Remove the barcode read
-        if not len(EAN):
+        if len(EAN) < 5:
             return
         print("Searching article: ", EAN)
         article = self.model.get_article_from_db(EAN)
