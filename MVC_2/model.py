@@ -18,8 +18,8 @@ class Model:
 
     def get_article_from_db(self, barcode):
         article = None
-        db_file_list = self.check_folder_for_files(self.path + "\\")
-        db_file_list = db_file_list if len(db_file_list) else self.check_folder_for_files('.')
+        db_file_list = self.check_folder_for_files(self.path + "\\") # First check kontoret/delad_mapp
+        db_file_list = db_file_list if len(db_file_list) else self.check_folder_for_files('.') # Else look in local folder
         print(db_file_list)
         for file in db_file_list:
             print("Opening file:", file)
